@@ -10,25 +10,29 @@
 
 const placesList = document.querySelector('.places__list'); 
 
-function createCard() {
+function createCard(item, { deleteCard }) {
     const cardTemplate = document.querySelector('#card-template').content;
-    
+    const cardElement = cardTemplate.querySelector('.card').cloneNode(true);
+    const cardImage = cardElement.querySelector('.card__image');  
+    const cardTitle = cardElement.querySelector('.card__title');
+    const buttonDelete = cardElement.querySelector('.card__delete-button');
+    cardImage.src = item.link;
+    cardImage.alt = item.name;
+    cardTitle.textContent = item.name;
+    buttonDelete.addEventListener('click', deleteCard);
+            
+    return cardElement;
+}
+
+function renderCards() {
     initialCards.forEach((place) => {
-        const card = cardTemplate.querySelector('.card').cloneNode(true);
-     
-        card.querySelector('.card__image').src = place.link;
-        card.querySelector('.card__title').textContent = place.name;
-        card.querySelector('.card__delete-button').addEventListener('click', deleteCard);
-        
+        const card = createCard(place, { deleteCard });    
+        placesList.append(card);
         function deleteCard() {
             card.remove(); 
-        }
-
-        placesList.append(card);
+        }  
     });
-
     return;
 }
 
-createCard();
-   
+renderCards();
