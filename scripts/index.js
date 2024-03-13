@@ -28,11 +28,11 @@ function renderCards() {
     initialCards.forEach((place) => {
         const card = createCard(place, { deleteCard });    
         placesList.append(card);
-        function deleteCard() {
-            card.remove(); 
-        }  
     });
-    return;
 }
 
 renderCards();
+
+function deleteCard(event) {
+    event.target.closest('.card').remove();
+}
