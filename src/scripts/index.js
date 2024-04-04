@@ -33,15 +33,6 @@ function handleImageClick (evt) {
     popupImage.alt = evt.target.getAttribute('alt');
     popupCaption.textContent = evt.target.getAttribute('alt');
 };
-    
-function animatePopup() {
-    const animation = pageContent.children;
-    for(let i = 0; i < animation.length; i++) {
-        if(animation[i].classList.contains('popup')) {
-            animation[i].classList.add('popup_is-animated');
-        }
-    };
-};
 
 animatePopup();
 
