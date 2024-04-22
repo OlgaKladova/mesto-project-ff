@@ -44,10 +44,7 @@ animatePopup(popups);
 
 popups.forEach((popup) => {  
     popup.addEventListener('click', (evt) => {
-        if(evt.target.classList.contains('popup__close')) {
-            closePopup(popup);
-        }
-        if(evt.target.classList.contains('popup')) {
+        if(evt.target.classList.contains('popup__close') || evt.target.classList.contains('popup')) {
             closePopup(popup);
         }
     });
@@ -55,9 +52,9 @@ popups.forEach((popup) => {
 
 buttonEdit.addEventListener('click', () => {
     openPopup(popupTypeEdit);
-    nameInput.value = `${document.querySelector('.profile__title').textContent}`;
-    jobInput.value = `${document.querySelector('.profile__description').textContent}`;
-    clearValidation(popupTypeEdit, validationConfig);
+    clearValidation(formEditProfile, validationConfig);
+    nameInput.value = document.querySelector('.profile__title').textContent;
+    jobInput.value = document.querySelector('.profile__description').textContent;
 });
 
 buttonAdd.addEventListener('click', () => {
@@ -66,20 +63,22 @@ buttonAdd.addEventListener('click', () => {
 
 profileImage.addEventListener('click', () => {
     openPopup(popupTypeAvatar);
+    clearValidation(formAvatar, validationConfig);
 })
 
 function handleProfileFormSubmit(evt) {
     evt.preventDefault();   
     renderLoading(true);
-    document.querySelector('.profile__title').textContent = nameInput.value;
-    document.querySelector('.profile__description').textContent = jobInput.value;   
     changeProfileData(nameInput.value, jobInput.value)
+    .then((data) => {
+        document.querySelector('.profile__title').textContent = data.name;
+        document.querySelector('.profile__description').textContent = data.about;   
+    })
     .catch(err => console.log(err))
     .finally(() => {
         renderLoading(false);
     })
     closePopup(popupTypeEdit);
-    clearValidation(popupTypeEdit, validationConfig);
 };
 
 formEditProfile.addEventListener('submit', handleProfileFormSubmit);
@@ -89,10 +88,7 @@ function handleCardSubmit(evt) {
     renderLoading(true);
     const newCard = {
         name: placeInput.value,
-        link: linkInput.value,
-        likes: [],
-        owner: {},
-        _id: ''
+        link: linkInput.value
     };
     addNewCard(newCard)
     .then(newCard => placesList.prepend(createCard(newCard, { deleteCard, likeCard, handleImageClick }, userId)) 
@@ -102,10 +98,8 @@ function handleCardSubmit(evt) {
     .finally(() => {
         renderLoading(false);
     })
-    placeInput.value = '';
-    linkInput.value = '';
     closePopup(popupTypeNewCard);
-    clearValidation(popupTypeNewCard, validationConfig);
+    clearValidation(formNewCard, validationConfig);
 };    
   
 formNewCard.addEventListener('submit', handleCardSubmit);
@@ -113,13 +107,14 @@ formNewCard.addEventListener('submit', handleCardSubmit);
 function handleAvatarSubmit (evt) {
     evt.preventDefault();
     renderLoading(true);
-    profileImage.style.backgroundImage = `url(${avatarInput.value})`;
     changeAvatar(avatarInput.value)
+    .then((data) => {
+        profileImage.style.backgroundImage = `url(${data.avatar})`;
+    })
     .catch(err => console.log(err))
     .finally(() => {
         renderLoading(false);
     })
-    avatarInput.value = '';
     closePopup(popupTypeAvatar);
 }
 
@@ -143,9 +138,5 @@ Promise.all([
 .catch(err => console.log(err))
 
 function renderLoading(isLoading) {
-    if(isLoading) {
-        buttonSubmit.textContent = 'Сохранение...';
-    } else {
-        buttonSubmit.textContent = 'Сохранить';
-    }
+    buttonSubmit.textContent = isLoading ? 'Сохранение...' : 'Сохранить';
 };

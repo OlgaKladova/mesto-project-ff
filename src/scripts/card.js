@@ -13,14 +13,9 @@ function createCard(item,  { deleteCard, likeCard, handleImageClick }, dataId) {
     cardTitle.textContent = item.name;
     likeNumber.textContent = item.likes.length;
     cardElement.id = item._id;
-    item.likes.forEach((like) => {
-        if(dataId === like._id) {
+    if (item.likes.some(like => dataId === like._id)) {
         buttonLike.classList.add('card__like-button_is-active');
-        }
-    });    
-    buttonDelete.addEventListener('click', () => {
-        deleteCard(cardElement);
-    });
+    }
     buttonLike.addEventListener('click', () => {
         likeCard(cardElement, buttonLike, likeNumber);  
     });   
@@ -28,33 +23,31 @@ function createCard(item,  { deleteCard, likeCard, handleImageClick }, dataId) {
     if (dataId !== item.owner._id) {
         buttonDelete.disabled = true;
         buttonDelete.hidden = true;
+    } else {
+        buttonDelete.addEventListener('click', () => {
+        deleteCard(cardElement);
+        });
     }
     return cardElement;
 };
 
 function deleteCard(card) {
     deleteCardFromServer(card.id)
+    .then(() => {
+        card.remove()
+    })
     .catch(err => console.log(err))
-    card.remove()
 };
 
 function likeCard(card, buttonLike, likeNumber) {
-    if(buttonLike.classList.contains('card__like-button_is-active')) {
-        deleteLikeCardFromServer (card.id) 
-        .then((data) => {
-            buttonLike.classList.remove('card__like-button_is-active');
-            likeNumber.textContent = data.likes.length;
-        })
-        .catch(err => console.log(err))        
-    } else {
-        addLikeCardToServer(card.id)
-        .then((data) => {
-            buttonLike.classList.add('card__like-button_is-active');
-            likeNumber.textContent = data.likes.length;
-        })
-        .catch(err => console.log(err))
-    }
+    const likeMethod = buttonLike.classList.contains('card__like-button_is-active') ? 
+    deleteLikeCardFromServer : addLikeCardToServer;
+    likeMethod(card.id)    
+    .then((data) => {
+        buttonLike.classList.toggle('card__like-button_is-active');
+        likeNumber.textContent = data.likes.length;
+    })
+    .catch(err => console.log(err))
 }
-
 
 export {createCard, deleteCard, likeCard};
